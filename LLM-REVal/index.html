@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="LLM-REVal: Can We Trust LLM Reviewers Yet? - Rui Li, Jia-Chen Gu, Po-Nien Kung, Heming Xia, Junfeng Liu, Xiangwen Kong, Zhifang Sui, Nanyun Peng">
+  <meta name="description" content="Systematic evaluation of LLM biases in peer review: LLM reviewers inflate scores for LLM-authored papers and undervalue critical human-authored research, revealing significant fairness concerns.">
+  <meta name="keywords" content="LLM, peer review, academic fairness, bias evaluation, large language models, scholarly ecosystem, AI ethics">
+  <meta name="author" content="Rui Li, Jia-Chen Gu, Po-Nien Kung, Heming Xia, Junfeng Liu, Xiangwen Kong, Zhifang Sui, Nanyun Peng">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  
+
+
+  <!-- Academic/Research Specific -->
+  <meta name="citation_title" content="LLM-REVal: Can We Trust LLM Reviewers Yet?">
+  <meta name="citation_author" content="Li, Rui">
+  <meta name="citation_author" content="Gu, Jia-Chen">
+  <meta name="citation_author" content="Kung, Po-Nien">
+  <meta name="citation_author" content="Xia, Heming">
+  <meta name="citation_author" content="Liu, Junfeng">
+  <meta name="citation_author" content="Kong, Xiangwen">
+  <meta name="citation_author" content="Sui, Zhifang">
+  <meta name="citation_author" content="Peng, Nanyun">
+  <meta name="citation_publication_date" content="2024">
+  <meta name="citation_conference_title" content="Academic Research">
+  <meta name="citation_pdf_url" content="https://pluslabnlp.github.io/LLM-REVal/static/pdfs/paper.pdf">
+  
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="msapplication-TileColor" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ajax.googleapis.com">
+  <link rel="preconnect" href="https://documentcloud.adobe.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <title>LLM-REVal: Can We Trust LLM Reviewers Yet?</title>
+  
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="static/images/logo.png">
+  <link rel="apple-touch-icon" href="static/images/logo.png">
+  
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+  
+  <!-- Fonts - Optimized loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+  
+  <!-- Structured Data for Academic Papers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "LLM-REVal: Can We Trust LLM Reviewers Yet?",
+    "description": "Systematic evaluation of LLM biases in peer review: LLM reviewers inflate scores for LLM-authored papers and undervalue critical human-authored research, revealing significant fairness concerns.",
+    "author": [
+      {
+        "@type": "Person",
+        "name": "Rui Li",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Peking University"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Jia-Chen Gu",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "University of California, Los Angeles"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Po-Nien Kung",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "University of California, Los Angeles"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Heming Xia",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "The Hong Kong Polytechnic University"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Junfeng Liu",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "StepFun AI"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Xiangwen Kong",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "StepFun AI"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Zhifang Sui",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Peking University"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Nanyun Peng",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "University of California, Los Angeles"
+        }
+      }
+    ],
+    "datePublished": "2024-01-01",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Academic Research"
+    },
+    "url": "https://pluslabnlp.github.io/LLM-REVal",
+    "image": "https://pluslabnlp.github.io/LLM-REVal/static/images/social_preview.png",
+    "keywords": ["LLM", "peer review", "academic fairness", "bias evaluation", "large language models", "scholarly ecosystem", "AI ethics"],
+    "abstract": "The rapid advancement of large language models (LLMs) has inspired researchers to integrate them extensively into the academic workflow, potentially reshaping how research is practiced and reviewed. While previous studies highlight the potential of LLMs in supporting research and peer review, their dual roles in the academic workflow and the complex interplay between research and review bring new risks that remain largely underexplored. In this study, we focus on how the deep integration of LLMs into both peer-review and research processes may influence scholarly fairness, examining the potential risks of using LLMs as reviewers by simulation.",
+    "citation": "@article{li2024llmreval,\n  title={LLM-REVal: Can We Trust LLM Reviewers Yet?},\n  author={Li, Rui and Gu, Jia-Chen and Kung, Po-Nien and Xia, Heming and Liu, Junfeng and Kong, Xiangwen and Sui, Zhifang and Peng, Nanyun},\n  journal={Academic Research},\n  year={2024},\n  url={xxxxxxxxxxxxxx}\n}",
+    "isAccessibleForFree": true,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "mainEntity": {
+      "@type": "WebPage",
+      "@id": "https://pluslabnlp.github.io/LLM-REVal"
+    },
+    "about": [
+      {
+        "@type": "Thing",
+        "name": "Natural Language Processing"
+      },
+      {
+        "@type": "Thing", 
+        "name": "AI Ethics"
+      },
+      {
+        "@type": "Thing",
+        "name": "Academic Peer Review"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- Website/Organization Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PlusLab NLP",
+    "url": "https://pluslabnlp.github.io",
+    "logo": "https://pluslabnlp.github.io/LLM-REVal/static/images/logo.png",
+    "sameAs": [
+      "https://github.com/PlusLabNLP"
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+
+  <main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">LLM-REVal: Can We Trust LLM Reviewers Yet?</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a>Rui Li</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a>Jia-Chen Gu</a><sup>2</sup>,</span>
+              <span class="author-block">
+                <a>Po-Nien Kung</a><sup>2</sup>,</span>
+              <span class="author-block">
+                <a>Heming Xia</a><sup>3</sup>,</span>
+              <span class="author-block">
+                <a>Junfeng Liu</a><sup>4</sup>,</span>
+              <span class="author-block">
+                <a>Xiangwen Kong</a><sup>4</sup>,</span>
+              <span class="author-block">
+                <a>Zhifang Sui</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a>Nanyun Peng</a><sup>2</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>Peking University</span>
+              <span class="author-block"><sup>2</sup>University of California, Los Angeles</span><br>
+              <span class="author-block"><sup>3</sup>The Hong Kong Polytechnic University</span>
+              <span class="author-block"><sup>4</sup>StepFun AI</span>
+            </div>
+
+            <div class="is-size-6 publication-emails" style="margin-top: 10px; line-height: 1.5;">
+              <span class="email-block" style="font-family: monospace;">o_l1ru1@stu.pku.edu.cn</span> 
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+        
+
+              <span class="link-block">
+                <a href="xxxxxxxxxxxxxx" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-github"></i>
+                </span>
+                <span>Code</span>
+              </a>
+            </span>
+
+            <span class="link-block">
+              <a href="https://arxiv.org/abs/2401.00000" target="_blank"
+              class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                <i class="ai ai-arxiv"></i>
+              </span>
+              <span>arXiv</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+
+<section class="hero teaser" style="margin-top: -100px;">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <pre style="
+    /* 1. 关键：确保使用等宽字体 */
+    font-family: monospace;
+    /* 2. 关键：锁定字体大小，放大到 30px */
+    font-size: 30px; 
+    /* 3. 设置背景和填充，增加填充到 60px */
+    color: #4949bb; 
+    background-color: #ffffff; 
+    padding: 60px; 
+    border-radius: 8px;
+    /* 4. 关键：让 PRE 标签的宽度适应其内容 */
+    display: inline-block; 
+    /* 5. 关键：居中整个 PRE 块 */
+    margin-left: auto;
+    margin-right: auto;
+">
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█  ╭─────────────────────────────────────────────────────╮  █
+█  ⚡        Imaginary Conference of Lost Reality         ⚡ █
+█  ╰─────────────────────────────────────────────────────╯  █
+█     _     _     __  __    ____  _______     __    _        █
+█    | |   | |   |  \/  |  |  _ \| ____\ \   / /_ _| |      █
+█    | |   | |   | |\/| |  | |_) |  _|  \ \ / / _  | |      █
+█    | |___| |___| |  | |  |  _ <| |___  \ V / (_| | |___   █
+█    |_____|_____|_|  |_|  |_| \_\_____|  \_/ \____|\____|   █
+█  ╭─────────────────────────────────────────────────────╮  █
+█  🚀  Based on AgentReview, AI-Researcher, AI scientist 🚀 █
+█  ╰─────────────────────────────────────────────────────╯  █
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      </pre>
+
+      </div>
+  </div>
+</section>
+
+<!-- LLM REViewer Re-EValuation -->
+
+
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            The rapid advancement of large language models (LLMs) has inspired researchers to integrate them extensively into the academic workflow, potentially reshaping how research is practiced and reviewed. While previous studies highlight the potential of LLMs in supporting research and peer review, their dual roles in the academic workflow and the complex interplay between research and review bring new risks that remain largely underexplored.
+            In this study, we focus on how the deep integration of LLMs into both peer-review and research processes may influence scholarly fairness, examining the potential risks of using LLMs as reviewers by simulation. This simulation incorporates a research agent, which generates papers and revises, alongside a review agent, which assesses the submissions. Based on the simulation results, we conduct human annotations and identify pronounced misalignment between LLM-based reviews and human judgments.
+            Our analysis reveals two primary biases in LLM reviewers: a linguistic feature bias favoring LLM-generated writing styles, and an aversion toward critical statements. These results highlight the risks and equity concerns posed to human authors and academic research if LLMs are deployed in the peer review cycle without adequate caution.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+
+<!-- Simulation Construction -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Simulation Construction</h2>
+      
+      <img src="static/images/simulation-main.png" alt="LLM-REVal Simulation Pipeline" style="width: 100%; height: auto;"/>
+
+      <div class="columns">
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="title is-4">🔬 Research Agent</h3>
+              <div class="content">
+                <p><strong>End-to-End Research Pipeline:</strong> The research agent initiates target research with keywords and executes the complete research workflow:</p>
+                <ul>
+                  <li><strong>Literature Retrieval:</strong> Uses Semantic Scholar API and Google Search API with retrieval-augmented generation for knowledge accuracy</li>
+                  <li><strong>Idea Generation:</strong> Generates candidate ideas, removes duplicates via cosine similarity, and selects top-ranked ideas</li>
+                  <li><strong>Experimental Design:</strong> Develops experiment plans based on retrieved literature demonstrations</li>
+                  <li><strong>Paper Writing:</strong> Implements structured writing process with ICLR LaTeX template, sequential iteration, reference integrity, and incremental compilation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">📋 Review Agent</h3>
+              <div class="content">
+                <p><strong>Five-Stage Peer-Review Pipeline:</strong> Built on AgentReview (Jin et al., 2024) to simulate complete scholarly peer-review process:</p>
+                <ul>
+                  <li><strong>Reviewer Assessment I:</strong> Three independent reviewers evaluate manuscripts and provide scores (1-10 scale) with acceptance/rejection reasons</li>
+                  <li><strong>Author-Reviewer Discussion:</strong> Simulated authors respond with rebuttals addressing critiques</li>
+                  <li><strong>Reviewer Assessment II:</strong> Reviewers revisit and update evaluations based on rebuttals</li>
+                  <li><strong>Meta-Review Compilation:</strong> Area chair synthesizes assessments and provides final rating</li>
+                  <li><strong>Final Decision:</strong> Acceptance determined by average score (≥6 threshold)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">🔄 Simulation Workflow</h3>
+              <div class="content">
+                <h5 class="title is-5">Research-Review Round (Round 1)</h5>
+                <ul>
+                  <li><strong>Dual Submission Sources:</strong> Human-authored papers from ICLR submissions + LLM-authored papers generated by research agent</li>
+                  <li><strong>Controlled Comparison:</strong> Uses identical keywords from human papers to guide LLM paper generation for fair comparison</li>
+                  <li><strong>Initial Evaluation:</strong> All submissions evaluated by review agent with acceptance threshold of 6/10</li>
+                </ul>
+                
+                <h5 class="title is-5">Revise-Review Rounds (Round 2-6)</h5>
+                <ul>
+                  <li><strong>Iterative Improvement:</strong> Focus on revisions of rejected papers without new submissions</li>
+                  <li><strong>Guided Revisions:</strong> LLM-authored papers revised directly from LaTeX sources; human-authored papers revised from arXiv sources</li>
+                  <li><strong>Multi-Round Process:</strong> Cycle repeats up to six rounds or until all previously rejected papers achieve acceptance</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notification is-info is-light">
+        <div class="content">
+          <p class="is-size-6">
+            <strong>Methodology Note:</strong> The simulation framework ensures comparability by using identical research topics for human and LLM-authored papers, 
+            employs realistic peer-review workflows, and enables systematic analysis of biases through multi-round iterations with controlled revisions.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- End Simulation Construction -->
+
+
+      <!-- <div class="item">
+      <img src="static/images/simulation-main.png" alt="LLM-REVal Simulation Pipeline" loading="lazy"/>
+      <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+        <strong>Multi-Round Simulation Framework</strong><br>
+        Our work simulates the academic publication process through iterative interactions between a research agent and a review agent. The research agent generates ideas, conducts studies, and revises manuscripts, while the review agent evaluates submissions and provides reviews. This multi-round framework enables analysis of LLM-mediated review dynamics and associated risks. The simulation comprises research-review rounds and revise-review cycles where low-scoring papers are resubmitted in revised form.
+      </h2>
+    </div> -->
+
+<!-- Image carousel -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Results</h2>
+      <div id="results-carousel" class="carousel results-carousel">
+      <div class="item">
+        <img src="static/images/llm_vs_human_original.png" alt="LLM vs Human Paper Scores" loading="lazy"/>
+        <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+          <strong>LLM-Authored Paper Superiority</strong><br>
+          LLM-authored papers achieved significantly higher review scores than human-authored papers (6.21 vs 5.94). In pairwise comparisons within the same keyword, LLM-authored submissions prevailed in 66% of cases compared to 26% for human-authored papers. The acceptance rate for LLM-authored papers reached 78%, substantially surpassing the 49% acceptance rate of human-authored submissions.
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/revision_vs_original.png" alt="Revision Improvements" loading="lazy"/>
+        <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+          <strong>Revision Boost Effect</strong><br>
+          Revisions guided by LLM reviews show significant improvements: low-scoring LLM-authored papers increased from 5.79 to 6.09 (+0.30), while low-scoring human-authored papers improved from 5.66 to 6.02 (+0.36). The improvements were statistically significant (p ≪ 0.05) in both cases, demonstrating the value of LLM feedback for paper improvement.
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/revision_vn_scale.png" alt="Revision Cycles Analysis" loading="lazy"/>
+        <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+          <strong>The Stubborn 5% Gap</strong><br>
+          By Round 3 (after two revise-review cycles), all initially submitted LLM-authored papers had been accepted. In contrast, even by Round 6 (after five revise-review cycles), 5% of human-authored papers remained unaccepted. This pattern suggests that certain human-authored papers face systematic disadvantages when evaluated by LLM reviewers.
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/dist.png" alt="Linguistic Feature Analysis" loading="lazy"/>
+        <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+          <strong>Linguistic Feature Bias</strong><br>
+          LLM reviewers prefer specific linguistic features characteristic of LLM-generated text: more concise (shorter paper, sentence, and paragraph length), higher lexical diversity (1-gram diversity: 0.4321 vs 0.2598), and complex writing styles. Human papers polished by LLMs show score improvements from 5.69 to 5.94 after 40% polishing, shifting their linguistic features toward LLM-authored distributions.
+        </h2>
+      </div>
+      <div class="item">
+        <img src="static/images/negative.png" alt="Critical Statement Analysis" loading="lazy"/>
+        <h2 class="subtitle has-text-left" style="font-size: 1.5rem !important;">
+          <strong>Critical Statement Aversion</strong><br>
+          LLM reviewers systematically undervalue papers discussing critical topics like biases, risks, adversarial attacks, and limitations. Within human-authored papers, the frequency of negative keywords is negatively correlated with review scores. Conversely, in LLM-authored papers, sentiment polarity remains consistently positive and review scores increase with negative keywords when positively framed.
+        </h2>
+      </div>
+    </div>
+    
+    <div class="notification is-info is-light">
+      <div class="content">
+        <p class="is-size-6">
+          <strong>Result Note:</strong> All results presented above are based on LLM review.
+        </p>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</section>
+<!-- End image carousel -->
+
+<!-- Key Findings -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Key Findings</h2>
+      <div class="columns">
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">📈 LLM-Authored Paper Superiority</h3>
+              <p><strong>Systematic Score Inflation:</strong> LLM reviewers assign significantly higher scores to LLM-authored papers (6.21 vs 5.94) </p>
+              <p><strong>Human Evaluation Contrast:</strong> When human annotators compared the same papers (LLM-Authored papers were rated superior in every case by LLM reviewers), human-authored papers were chosen as "superior" in 56.7% of cases vs 33.3% for LLM-authored papers , revealing significant misalignment.</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">🔄 Revision Boost</h3>
+              <p><strong>LLM Review Score Improvements:</strong> Revisions guided by LLM reviews show significant improvements (+0.30 for LLM papers, +0.36 for human papers).</p>
+              <p><strong>Human-Validated Improvement:</strong> Human evaluation confirmed that 46.55% of identified issues were successfully addressed in revisions, supporting the validity of LLM-based review-revise process and demonstrating its value for early-stage researchers and low-quality paper enhancement.</p>
+              
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">🚫 Inevitable Rejection</h3>
+              <p><strong>The Stubborn 5% Gap:</strong> 5% of human-authored papers remain unaccepted even after multiple revision cycles.</p>
+              <p><strong>Human-LLM Judgment Gap:</strong> These consistently low-scored human papers were deemed valuable by expert human reviewers, with one paper actually accepted to ICLR 2024, highlighting the misalignment between LLM and human evaluations and indicating systematic disadvantages when LLM reviewers evaluated certain research types.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Key Findings -->
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Sources of Bias</h2>
+      <div class="columns">
+        <div class="column is-half">
+          <div class="content">
+            <h4 class="title is-4">Linguistic Feature Bias</h4>
+            <ul>
+              <li><strong>Conciseness & Length:</strong> LLM-authored papers are consistently <strong>more concise</strong>, exhibiting shorter overall paper, sentence, and paragraph lengths compared to human work.</li>
+              <li><strong>Lexical Diversity:</strong> LLM papers show markedly <strong>higher lexical diversity</strong>, with 1-gram diversity nearly <strong>twice</strong> that of human-authored work (0.43 vs 0.26).</li>
+              <li><strong>Complexity Trends:</strong> LLM papers have <strong>higher Flesch-Kincaid Grade Level scores</strong> (more complex vocabulary) but <strong>lower subclause ratios</strong>, suggesting deep word spans within a shallower grammatical structure.</li>
+              <!-- <li><strong>Polishing Effect:</strong> Human papers gain a significant score boost (<strong>+0.25 points</strong>) after only <strong>40% LLM polishing</strong>, potentially turning rejected papers into accepted ones.</li> -->
+              <li><strong>Statistical Shift:</strong> Score improvements coincide with the human-authored papers' linguistic features <strong>shifting toward the LLM-authored distribution</strong> after polishing.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="column is-half">
+          <div class="content">
+            <h4 class="title is-4">Critical Statement Aversion</h4>
+            <ul>
+              <li><strong>Systematic Undervaluation:</strong> Papers addressing <strong>critical topics</strong> (e.g., risks, fairness, limitations) are systematically scored lower by LLM reviewers.</li>
+              <li><strong>Negative Keyword Correlation:</strong> For human papers, the frequency of <strong>negative keywords</strong> is <strong>negatively correlated</strong> with review scores, indicating bias against critical content.</li>
+              <li><strong>Framing Sensitivity:</strong> A <strong>negative framing</strong> of critical topics <strong>exacerbates bias</strong> and lowers scores, whereas a positive framing tends to yield disproportionately higher scores.</li>
+              <li><strong>Sentiment Polarization:</strong> LLM-authored papers <strong>maintain consistently positive sentiment</strong> regardless of critical content, insulating them from this scoring bias.</li>
+              <!-- <li><strong>Human-LLM Disagreement:</strong> Research deemed <strong>valuable by expert human reviewers</strong> is the very content that LLM-based reviewers <strong>systematically undervalue</strong>.</li> -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Takeaway -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Takeaways</h2>
+      <div class="columns">
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">⚠️ Fairness Concerns in LLM Polishing</h3>
+              <p>As LLM-based polishing is permissible in most conferences, the tendency of LLM reviewers to assign inflated scores to submissions exhibiting LLM-generated stylistic features raises substantial fairness concerns for their practical deployment.</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">📉 Systematic Undervaluation of Critical Research</h3>
+              <p>Research addressing bias, fairness, limitations, and other critical topics tends to be systematically undervalued by LLM reviewers, creating a bias against important scholarly discussions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">🔍 LLM-Authored Paper Detection</h3>
+              <p>Submitting LLM-authored papers to academic venues wastes scholarly resources and undermines the integrity of peer review. Linguistic features can serve as preliminary indicators of such authorship.</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="card equal-height-card"> 
+            <div class="card-content">
+              <h3 class="title is-4">🚀 Positive Potential for Early-Stage Researchers</h3>
+              <p>Revisions guided by LLM review and revise yield quality gains in both LLM-based and human evaluations, illustrating the potential of the LLMs-as-reviewers paradigm to support early-stage researchers and enhance low-quality papers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Takeaway -->
+
+<!-- Paper poster -->
+<!-- <section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title">Paper</h2>
+      <iframe src="static/pdfs/paper.pdf" width="100%" height="550">
+      </iframe>
+    </div>
+  </div>
+</section> -->
+<!--End paper poster -->
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@article{li2024llmreval,
+  title={LLM-REVal: Can We Trust LLM Reviewers Yet?},
+  author={Li, Rui and Gu, Jia-Chen and Kung, Po-Nien and Xia, Heming and Liu, Junfeng and Kong, Xiangwen and Sui, Zhifang and Peng, Nanyun},
+  journal={xxxx},
+  year={xxxx},
+  url={xxxxx}
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>
